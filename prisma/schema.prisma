@@ -1,5 +1,5 @@
 datasource db {
-  provider     = "mysql"
+  provider     = "postgresql"
   url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
@@ -8,7 +8,7 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Board {
+model Trello_Board {
   id            String @id @default(uuid())
   orgId         String
   title         String
@@ -18,21 +18,21 @@ model Board {
   imageUserName String @db.Text
   imageLinkHTML String @db.Text
 
-  lists         List[]
+  lists         Trello_List[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
 
-model List {
+model Trello_List {
   id        String @id @default(uuid())
   title     String
   order     Int
 
   boardId   String
-  board     Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  board     Trello_Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
-  cards     Card[]
+  cards     Trello_Card[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -40,14 +40,14 @@ model List {
   @@index([boardId])
 }
 
-model Card {
+model Trello_Card {
   id          String @id @default(uuid())
   title       String
   order       Int
   description String? @db.Text
 
   listId      String
-  list        List  @relation(fields: [listId], references: [id], onDelete: Cascade)
+  list        Trello_List  @relation(fields: [listId], references: [id], onDelete: Cascade)
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -55,24 +55,24 @@ model Card {
   @@index([listId])
 }
 
-enum ACTION {
+enum Trello_ACTION {
   CREATE
   UPDATE
   DELETE
 }
 
-enum ENTITY_TYPE {
+enum Trello_ENTITY_TYPE {
   BOARD
   LIST
   CARD
 }
 
-model AuditLog {
+model Trello_AuditLog {
   id          String  @id @default(uuid())
   orgId       String
-  action      ACTION
+  action      Trello_ACTION
   entityId    String
-  entityType  ENTITY_TYPE
+  entityType  Trello_ENTITY_TYPE
   entityTitle String
   userId      String
   userImage   String @db.Text
@@ -82,7 +82,7 @@ model AuditLog {
   updatedAt   DateTime  @updatedAt
 }
 
-model OrgLimit {
+model Trello_OrgLimit {
   id          String @id @default(uuid())
   orgId       String @unique
   count       Int @default(0)
@@ -91,7 +91,7 @@ model OrgLimit {
   updatedAt   DateTime  @updatedAt
 }
 
-model OrgSubscription {
+model Trello_OrgSubscription {
   id                String @id @default(uuid())
   orgId             String @unique
 
